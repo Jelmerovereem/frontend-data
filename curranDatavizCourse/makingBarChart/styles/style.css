@@ -1,3 +1,15 @@
 body {
 	font-family: poppins;
 }
+
+rect {
+	fill: steelblue;
+}
+
+rect:hover {
+	fill: #265780;
+}
+
+text {
+	font-size: 1.4em;
+}
