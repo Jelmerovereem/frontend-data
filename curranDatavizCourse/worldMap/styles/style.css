@@ -1,0 +1,12 @@
+body {
+	font-family: poppins;
+}
+
+path {
+	stroke: blue;
+	stroke-opacity: .2;
+}
+
+path:hover {
+	fill: red;
+}
