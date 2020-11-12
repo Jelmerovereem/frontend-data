@@ -3,7 +3,8 @@ body {
 }
 
 path {
-	stroke: blue;
+	fill: lightgreen;
+	stroke: black;
 	stroke-opacity: .2;
 }
 

@@ -21,9 +21,9 @@ const pathGenerator = d3.geoPath().projection(projection);
 
 const group = svg.append("g");
 
-svg.call(d3.zoom().on("zoom", ({transform}) => {
+/*svg.call(d3.zoom().on("zoom", ({transform}) => {
 	group.attr("transform", transform);
-}))
+}))*/
 
 function renderMap(data) {
 	console.log(data);
@@ -39,9 +39,11 @@ function renderMap(data) {
 
 		//obj => obj.properties.statnaam
 
+/*group.append("text")
+		.attr("y", 20)
+		.text("What is the best way to park in the city throughout the Netherlands?");*/
+
 group.append("text")
-		.attr("y", -10)
-		.text("What is the best way to park in the city throughout the Netherlands?");
 
 fetch('https://opendata.rdw.nl/resource/adw6-9hsg.json?$$app_token=zI34snM8XBhNRzxL50vrTeOLA')
 .then(response => response.json())
