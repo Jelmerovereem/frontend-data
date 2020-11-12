@@ -2,11 +2,11 @@ body {
 	font-family: poppins;
 }
 
-rect {
+circle {
 	fill: steelblue;
 }
 
-rect:hover {
+circle:hover {
 	fill: #265780;
 }
 

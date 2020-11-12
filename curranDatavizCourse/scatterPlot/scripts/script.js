@@ -1,7 +1,3 @@
-/*d3.csv("data.csv").then(data => {
-	console.log(data);
-});*/
-
 const svg = d3.select("svg"); // select the svg in the DOM
 
 const width = +svg.attr("width");
@@ -21,12 +17,13 @@ const render = data => {
 
 	const xScale = d3.scaleLinear()
 		.domain([0, d3.max(data, xValue)])
-		.range([0, innerWidth]);
+		.range([0, innerWidth])
+		.nice();
 
-	const yScale = d3.scaleBand()
+	const yScale = d3.scalePoint()
 		.domain(data.map(yValue))
 		.range([0, innerHeight])
-		.padding(0.2);
+		.padding(0.5);
 
 	const xAxisTickFormat = number => d3.format(".3s")(number)
 		.replace("G", "B"); 
@@ -34,15 +31,15 @@ const render = data => {
 	const xAxis = d3.axisBottom(xScale)
 		.tickFormat(xAxisTickFormat)
 		.tickSize(-innerHeight);
-	const yAxis = d3.axisLeft(yScale);
+
+	const yAxis = d3.axisLeft(yScale)
+		.tickSize(-innerWidth);
 
 	const group = svg.append("g")
 		.attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-/*	xAxis(group.append("g"));
-	yAxis(group.append("g"));*/
 	group.append("g").call(yAxis)
-		d3.selectAll(".domain, .tick line")
+		d3.selectAll(".domain")
 		.remove();
 	const xAxisGroup = group.append("g").call(xAxis)
 		.attr("transform", `translate(0, ${innerHeight})`);
@@ -57,11 +54,11 @@ const render = data => {
 		.attr("x", innerWidth / 2)
 		.text("Population in numbers")
 
-	group.selectAll("rect").data(data)
-		.enter().append("rect")
-			.attr("y", obj => yScale(yValue(obj)))
-			.attr("width", obj => xScale(xValue(obj)))
-			.attr("height", yScale.bandwidth());
+	group.selectAll("circle").data(data)
+		.enter().append("circle")
+			.attr("cy", obj => yScale(yValue(obj)))
+			.attr("cx", obj => xScale(xValue(obj)))
+			.attr("r", 20);
 
 	group.append("text")
 		.attr("y", -10)
