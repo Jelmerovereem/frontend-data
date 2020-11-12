@@ -39,5 +39,8 @@ I've devided this main question into 3 subquestions:
 2. Where are the most parking spots?  
 3. Where are the available/free parking spots? 
 
+#### Visualization
+![image](https://user-images.githubusercontent.com/58043913/98917601-e2af4e00-24cc-11eb-949b-fa2496f667d7.png)
+
 ### Credits & Sources
 _Here comes shout-outs to the people who helped me and url's to resources_
