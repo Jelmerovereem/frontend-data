@@ -42,5 +42,19 @@ I've devided this main question into 3 subquestions:
 #### Visualization
 ![image](https://user-images.githubusercontent.com/58043913/98917601-e2af4e00-24cc-11eb-949b-fa2496f667d7.png)
 
+### Examples
+I used the [Curran dataviz course](https://curran.github.io/dataviz-course-2018/) to learn the d3 skills.
+See the folder curranDatavizCourse in this repo for the examples.
+
+#### Screenshots
+**Bar chart**
+![image](https://user-images.githubusercontent.com/58043913/98920047-e8f2f980-24cf-11eb-91d5-4cbcbcb87cab.png)
+
+**World map**
+![image](https://user-images.githubusercontent.com/58043913/98920116-fd36f680-24cf-11eb-88e1-e3ef30ee94c3.png)
+
+**Scatter plot**
+![image](https://user-images.githubusercontent.com/58043913/98919964-cfea4880-24cf-11eb-9ae8-7c9c115d4934.png)
+
 ### Credits & Sources
 _Here comes shout-outs to the people who helped me and url's to resources_
