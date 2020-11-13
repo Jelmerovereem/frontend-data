@@ -1,5 +1,9 @@
 const svg = d3.select("svg"); // select the svg in the DOM
 
+const dropdown = document.querySelector(".variable-dropdown");
+
+
+
 const url = "https://cartomap.github.io/nl/wgs84/gemeente_2020.topojson"; // the geodata for the map
 
 fetch(url)
@@ -38,7 +42,12 @@ svg.call(d3.zoom().on("zoom", ({transform}) => {
 		.transition()
 			.duration(500)
 			.attr("r", 0.5)	
-	} else if (transform.k > 10) {
+	} else if (transform.k > 10 && transform.k <= 30) {
+		group.selectAll("circle")
+		.transition()
+			.duration(500)
+			.attr("r", 0.3)
+	} else if (transform.k > 30 ) {
 		group.selectAll("circle")
 		.transition()
 			.duration(500)
@@ -113,77 +122,143 @@ fetch('https://opendata.rdw.nl/resource/nsk3-v9n7.json?$limit=6101&$$app_token=z
 
 setTimeout(() => {
 	combineData(garageData, coordinatesArray, capacityData);
-}, 2500)
+}, 3000)
 
-function combineData(garageData, garageLocatieData, capacityData) {
+function combineData(garageData, garageLocatieData, variableData) {
 	let outcomeData = [];
-	garageLocatieData.forEach((garage) => {
-		var result = garageData.find(obj => {
-			return obj.areaid === garage.areaId;
+		garageLocatieData.forEach((garage) => {
+			var result = garageData.find(obj => {
+				return obj.areaid === garage.areaId;
+			});
+			if (result === undefined ) {
+				var garageObj = {
+					areaId: garage.areaId,
+					long: garage.long,
+					lat: garage.lat,
+					areaDesc: "onbekend"
+				}
+			} else {
+				var garageObj = {
+					areaId: garage.areaId,
+					long: garage.long,
+					lat: garage.lat,
+					areaDesc: result.areadesc
+				}
+			}
+			outcomeData.push(garageObj);
 		});
-		var capacityObj = capacityData.find(obj => {
-			return obj.areaid === garage.areaId;
+	
+	if (variableData.length > 2000) {
+		//paid/free
+		outcomeData.forEach((garage) => {
+			var paidObj = variableData.find(obj => {
+				return obj.areaid === garage.areaId;
+			})
+			if (paidObj === undefined || paidObj.usageid === undefined) {
+				garage.paid = "onbekend";
+			} else {
+				garage.paid = paidObj.usageid;
+			}
 		})
-		if (result === undefined && capacityObj === undefined) {
-			var garageObj = {
-				areaId: garage.areaId,
-				long: garage.long,
-				lat: garage.lat,
-				areaDesc: "onbekend",
-				capacity: "onbekend"
-			}
-		} else if (capacityObj === undefined) {
-			var garageObj = {
-				areaId: garage.areaId,
-				long: garage.long,
-				lat: garage.lat,
-				areaDesc: result.areadesc,
-				capacity: "onbekend"
-			}
-		} else if (result === undefined) {
-			var garageObj = {
-				areaId: garage.areaId,
-				long: garage.long,
-				lat: garage.lat,
-				areaDesc: "onbekend",
-				capacity: capacityObj.capacity
-			}
-		} else {
-			var garageObj = {
-			areaId: garage.areaId,
-			long: garage.long,
-			lat: garage.lat,
-			areaDesc: result.areadesc,
-			capacity: capacityObj.capacity
-		}
-		}
-		outcomeData.push(garageObj);
-	});
+	} else {
+		//capacity
+		outcomeData.forEach((garage) => {
+			var capacityObj = variableData.find(obj => {
+				return obj.areaid === garage.areaId
+			})
+			if (capacityObj === undefined || capacityObj.capacity === undefined) {
+				garage.capacity = "onbekend";	
+			} else {
+				garage.capacity = capacityObj.capacity;
+			}			
+		})
+	}
 	renderPoints(outcomeData)
 }
 
+const tooltip = document.querySelector(".tooltip");
+
 function renderPoints(coordinates) {
-	group.selectAll("circle")
-	.data(coordinates)
-	.enter()
-	.append("circle")
-	.attr("r", 4)
-	.attr("transform", (obj) => {
-		return `translate(${projection([obj.long, obj.lat])})`;
-	})
-	.attr("fill", (obj) => {
-		if (obj.capacity <= 800) {
-			return "red"
-		} else if (obj.capacity > 800 && obj.capacity <= 1600) {
-			return "orange"
+	if (coordinates[0].hasOwnProperty("paid")) {
+		var circle = group.selectAll("circle")
+		.data(coordinates);
+
+		circle.exit().remove();
+		circle.enter().append("circle")
+			.attr("r", 4)
+			.attr("transform", (obj) => {
+				return `translate(${projection([obj.long, obj.lat])})`;
+			});
+
+		circle.transition()
+			.duration(500)
+			.attr("fill", (obj) => {
+				if (/VERGUNNING|VERGUNP|VERGUN-ALG|VERGUN-MV/.test(obj.paid)) {
+					return "red"
+				} else if (/BETAALDP|GARAGEP/.test(obj.paid)) {
+					return "orange"
+				} else if (/onbekend/.test(obj.paid)) {
+					return "grey"
+				} else {
+					return "green"
+				}
+			})
+	} else {
+	var circle = group.selectAll("circle")
+	.data(coordinates);
+
+	if (!circle.empty()) {
+		circle.exit().remove();
+	}
+
+	circle.enter().append("circle")
+		.attr("r", 4)
+		.attr("transform", (obj) => {
+			return `translate(${projection([obj.long, obj.lat])})`;
+		})
+		.attr("fill", (obj) => {
+			if (obj.capacity <= 800) {
+				return "red"
+			} else if (obj.capacity > 800 && obj.capacity <= 1600) {
+				return "orange"
+			} else {
+				return "green"
+			}
+	});
+	
+	circle.transition()
+		.duration(500)
+		.attr("fill", (obj) => {
+				if (obj.capacity <= 800) {
+					return "red"
+				} else if (obj.capacity > 800 && obj.capacity <= 1600) {
+					return "orange"
+				} else {
+					return "green"
+				}
+		})
+	}
+
+	group.selectAll("circle").on("mouseover", (event, obj) => {
+		tooltip.innerHTML = obj.areaDesc + "<br>";
+		if (obj.paid === undefined) {
+			tooltip.innerHTML += "capacity: " + obj.capacity;	
 		} else {
-			return "green"
+			tooltip.innerHTML += "Paid/free: " + obj.paid;	
 		}
+		
+		
+
+		tooltip.style.left = (event.pageX) + "px";
+		tooltip.style.top = (event.pageY + 10) + "px";
+		tooltip.classList.add("focus");
+		tooltip.style.opacity = "1";
+
+		
 	})
-	.on("mouseover", (event, obj) => {
-/*		console.log(obj.capacity);*/
-	})
-	.on("mouseout", () => {});
+	.on("mouseout", () => {
+		tooltip.style.opacity = "0";
+	});
 }
 
 // from Stan Brankras  https://github.com/StanBankras/functional-programming/blob/56585a9b63601b68de3bcc3b26050b85ca05cf5e/utils.js#L36-L54
@@ -231,3 +306,22 @@ function getCenterCoord(coordinates) {
 
   
 }
+
+function updateData() {
+	const variable = this.value;
+	if (variable === "capacity") {
+		document.querySelector(".first").innerText = "0";
+		document.querySelector(".last").innerText = "10";
+		combineData(garageData, coordinatesArray, capacityData);
+	} else if (variable === "paid/free") {
+		document.querySelector(".first").innerText = "Betalen";
+		document.querySelector(".last").innerText = "Gratis";
+		fetch('https://opendata.rdw.nl/resource/adw6-9hsg.json?$limit=8352&$$app_token=zI34snM8XBhNRzxL50vrTeOLA')
+		.then(response => response.json())
+		.then((paidData) => {
+			combineData(garageData, coordinatesArray, paidData)
+		})
+	}
+}
+
+dropdown.addEventListener("change", updateData);
