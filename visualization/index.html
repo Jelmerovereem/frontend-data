@@ -7,11 +7,24 @@
 	<link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
+	<div class="tooltip"></div>
 	<h1>What is the best way to park in the city throughout the Netherlands?</h1>
-	<img src="img/bar.jpg" alt="">
+	<select name="variable" class="variable-dropdown">
+		<option value="capacity">Capacity</option>
+		<option value="paid/free">Paid/free</option>
+	</select>
+	<div class="bar-container">
+		<div class="bar"></div>
+		<div class="baraxis">
+			<p class="first">0</p>
+			<p class="last">10</p>
+		</div>
+	</div>
 	<p class="loading">Loading...</p>
-	<svg width="1200" height="800"></svg>
-	<script src="https://d3js.org/d3.v6.min.js"></script>
+	<svg width="1200" height="600"></svg>
+	<p>Source visualization: <a href="https://curran.github.io/dataviz-course-2018/">Curran dataviz 2018</a></p>
+	<p>Source data: <a href="https://opendata.rdw.nl/browse?category=Parkeren&provenance=official">RDW Opendata</a></p>
+	<script src="https://d3js.org/d3.v6.js"></script>
 	<script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script>
 	<script src="data.js"></script>
 	<script src="scripts/script.js"></script>
