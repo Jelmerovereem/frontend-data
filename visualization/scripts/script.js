@@ -1,11 +1,11 @@
 const svg = d3.select("svg"); // select the svg in the DOM
 
-const url = "https://cartomap.github.io/nl/wgs84/gemeente_2020.topojson";
+const url = "https://cartomap.github.io/nl/wgs84/gemeente_2020.topojson"; // the geodata for the map
 
 fetch(url)
 .then(response => response.json())
 .then((data) => {
-	var stadData = topojson.feature(data, data.objects.gemeente_2020);
+	var stadData = topojson.feature(data, data.objects.gemeente_2020); // Curran dataviz https://www.youtube.com/watch?v=Qw6uAg3EO64&list=PL9yYRbwpkykvOXrZumtZWbuaXWHvjD8gi&index=15
 	document.querySelector(".loading").innerText = "";
 	renderMap(stadData);
 });
@@ -14,87 +14,176 @@ const width = +svg.attr("width");
 const height = +svg.attr("height");
 
 const projection = d3.geoMercator()
-	.center([5.116667, 52.17])
+	.center([5.116667, 52.17]) // https://github.com/mbergevoet/frontend-data/blob/master/frontend-data/index.js#L61
 	.scale(6000)
-	.translate([width/2, height/2]);
+	.translate([width/2, height/2]); // center the map based on the width and height from the svg element
 const pathGenerator = d3.geoPath().projection(projection);
 
 const group = svg.append("g");
 
-/*svg.call(d3.zoom().on("zoom", ({transform}) => {
+svg.call(d3.zoom().on("zoom", ({transform}) => {
 	group.attr("transform", transform);
-}))*/
+	if (transform.k <= 2) {
+		group.selectAll("circle")
+		.transition()
+			.duration(500)
+			.attr("r", 4)
+	} else if (transform.k >2 && transform.k <= 4) {
+		group.selectAll("circle")
+		.transition()
+			.duration(500)
+			.attr("r", 2)
+	} else if (transform.k > 4 && transform.k <= 10) {
+		group.selectAll("circle")
+		.transition()
+			.duration(500)
+			.attr("r", 0.5)	
+	} else if (transform.k > 10) {
+		group.selectAll("circle")
+		.transition()
+			.duration(500)
+			.attr("r", 0.1)
+	}
+}))
 
 function renderMap(data) {
-	console.log(data);
+	/* Create the base map */
 	group.selectAll("path")
 	.data(data.features)
-	.enter().append("path")
+	.enter()
+	.append("path")
 	.attr("d", pathGenerator)
+	
+	/* Add the "gemeente" names */
+	group.selectAll("text") //https://stackoverflow.com/questions/13897534/add-names-of-the-states-to-a-map-in-d3-js
+	.data(data.features)
+	.enter()
+	.append("svg:text")
+		.text(obj => obj.properties.statnaam)
+		.attr("fill", "white")
+		.attr("x", (d) => {return pathGenerator.centroid(d)[0]})
+		.attr("y", (d) => {return pathGenerator.centroid(d)[1]})
+		.attr("text-anchor", "middle")
+		.attr("font-size", "1pt")
+
+	/* Add title tooltip */
+	group.selectAll("path")
 	.append("title")
 		.text(obj => obj.properties.statnaam)	
 }
 
 
+let garageData;
 
-		//obj => obj.properties.statnaam
-
-/*group.append("text")
-		.attr("y", 20)
-		.text("What is the best way to park in the city throughout the Netherlands?");*/
-
-group.append("text")
-
-fetch('https://opendata.rdw.nl/resource/adw6-9hsg.json?$$app_token=zI34snM8XBhNRzxL50vrTeOLA')
+fetch('https://opendata.rdw.nl/resource/adw6-9hsg.json?$limit=8352&$$app_token=zI34snM8XBhNRzxL50vrTeOLA')
 .then(response => response.json())
 .then((data) => {
-	console.log(data);
+	garageData = data;
 });
+
+let capacityData;
+
+fetch('https://opendata.rdw.nl/resource/b3us-f26s.json?$limit=1567&$$app_token=zI34snM8XBhNRzxL50vrTeOLA')
+.then(response => response.json())
+.then((data) => {
+	capacityData = data;
+})
 
 let coordinatesArray = [];
 
-fetch('https://opendata.rdw.nl/resource/nsk3-v9n7.json?$$app_token=zI34snM8XBhNRzxL50vrTeOLA')
+let garageLocatieData;
+
+fetch('https://opendata.rdw.nl/resource/nsk3-v9n7.json?$limit=6101&$$app_token=zI34snM8XBhNRzxL50vrTeOLA')
 .then(response => response.json())
 .then((data) => {
-	console.log(data);
 	data.forEach((garage) => {
-		//console.log(getCenterCoord(garage.areageometryastext))
 		let coordinateObj;
-		if (!Number.isNaN(getCenterCoord(garage.areageometryastext)[0]) || !Number.isNaN(getCenterCoord(garage.areageometryastext)[1])) {
+		if (garage.areageometryastext != "" && garage.areageometryastext != undefined) {
+			if (!Number.isNaN(getCenterCoord(garage.areageometryastext)[0]) || !Number.isNaN(getCenterCoord(garage.areageometryastext)[1])) {
 			coordinateObj = {
-				long: getCenterCoord(garage.areageometryastext)[0],
-				lat: getCenterCoord(garage.areageometryastext)[1]
-			}
-			coordinatesArray.push(coordinateObj)
-		} else if (getCenterCoord(garage.areageometryastext)[0] != undefined || getCenterCoord(garage.areageometryastext)[1] != undefined) {
-			coordinateObj = {
+				areaId: garage.areaid,
 				long: getCenterCoord(garage.areageometryastext)[0],
 				lat: getCenterCoord(garage.areageometryastext)[1]
 			}
 			coordinatesArray.push(coordinateObj)
 		}
-
-		
-				
+		}			
 	});
-		
-		renderPoints(coordinatesArray);
 });
 
-function renderPoints(coordinates) {
-	console.log(coordinates)
-/*	coordinates.forEach((coordinate) => {
+setTimeout(() => {
+	combineData(garageData, coordinatesArray, capacityData);
+}, 2500)
 
-	})*/
-	/*group.selectAll("circle")
+function combineData(garageData, garageLocatieData, capacityData) {
+	let outcomeData = [];
+	garageLocatieData.forEach((garage) => {
+		var result = garageData.find(obj => {
+			return obj.areaid === garage.areaId;
+		});
+		var capacityObj = capacityData.find(obj => {
+			return obj.areaid === garage.areaId;
+		})
+		if (result === undefined && capacityObj === undefined) {
+			var garageObj = {
+				areaId: garage.areaId,
+				long: garage.long,
+				lat: garage.lat,
+				areaDesc: "onbekend",
+				capacity: "onbekend"
+			}
+		} else if (capacityObj === undefined) {
+			var garageObj = {
+				areaId: garage.areaId,
+				long: garage.long,
+				lat: garage.lat,
+				areaDesc: result.areadesc,
+				capacity: "onbekend"
+			}
+		} else if (result === undefined) {
+			var garageObj = {
+				areaId: garage.areaId,
+				long: garage.long,
+				lat: garage.lat,
+				areaDesc: "onbekend",
+				capacity: capacityObj.capacity
+			}
+		} else {
+			var garageObj = {
+			areaId: garage.areaId,
+			long: garage.long,
+			lat: garage.lat,
+			areaDesc: result.areadesc,
+			capacity: capacityObj.capacity
+		}
+		}
+		outcomeData.push(garageObj);
+	});
+	renderPoints(outcomeData)
+}
+
+function renderPoints(coordinates) {
+	group.selectAll("circle")
 	.data(coordinates)
 	.enter()
 	.append("circle")
-	.attr("r", 5)
+	.attr("r", 4)
 	.attr("transform", (obj) => {
-		console.log(obj.lat)
 		return `translate(${projection([obj.long, obj.lat])})`;
-	});*/
+	})
+	.attr("fill", (obj) => {
+		if (obj.capacity <= 800) {
+			return "red"
+		} else if (obj.capacity > 800 && obj.capacity <= 1600) {
+			return "orange"
+		} else {
+			return "green"
+		}
+	})
+	.on("mouseover", (event, obj) => {
+/*		console.log(obj.capacity);*/
+	})
+	.on("mouseout", () => {});
 }
 
 // from Stan Brankras  https://github.com/StanBankras/functional-programming/blob/56585a9b63601b68de3bcc3b26050b85ca05cf5e/utils.js#L36-L54
@@ -120,8 +209,9 @@ function isCoordInPolygon(centerCoord, polygons) {
   return zone;
 }
 
-function getCenterCoord(coordinates) { 
-  const type = coordinates.split(' ')[0];
+function getCenterCoord(coordinates) {
+
+		const type = coordinates.split(' ')[0];
   let longLat = replaceMultipleOccurences(coordinates, [type + ' (', '(', ')', ','], '').split(' ');
   if(type === 'POINT') {
     longLat = [ Number(longLat[0]), Number(longLat[1]) ];
@@ -138,4 +228,6 @@ function getCenterCoord(coordinates) {
   }
 
   return longLat;
+
+  
 }
