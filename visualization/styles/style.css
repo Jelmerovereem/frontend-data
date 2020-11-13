@@ -3,11 +3,11 @@ body {
 }
 
 path {
-	fill: lightgreen;
-	stroke: black;
+	fill: black;
+	stroke: blue;
 	stroke-opacity: .2;
 }
 
 path:hover {
-	fill: red;
+	fill: blue;
 }
