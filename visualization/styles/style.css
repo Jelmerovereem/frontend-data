@@ -11,3 +11,28 @@ path {
 path:hover {
 	fill: blue;
 }
+
+
+.tooltip {
+	width: fit-content;
+	height: auto;
+	padding: 10px;
+	background: yellow;
+	position: absolute;
+	font-size: 22px;
+	transition: opacity .2s;
+	opacity: 0;
+}
+
+.baraxis {
+	display: flex;
+	justify-content: space-between;
+	width: 300px;
+}
+
+.bar {
+	width: 300px;
+	height: 20px;
+	background: linear-gradient(90deg, rgba(255,0,0,1) 0%, rgba(246,255,28,1) 50%, rgba(0,255,59,1) 100%);
+	border: 2px solid black;
+}
