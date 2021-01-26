@@ -2,8 +2,6 @@ const svg = d3.select("svg"); // select the svg in the DOM
 
 const dropdown = document.querySelector(".variable-dropdown");
 
-
-
 const url = "https://cartomap.github.io/nl/wgs84/gemeente_2020.topojson"; // the geodata for the map
 
 fetch(url)
@@ -124,8 +122,39 @@ setTimeout(() => {
 	combineData(garageData, coordinatesArray, capacityData);
 }, 3000)
 
+function checkOption(variableData, garagesData) {
+	if (variableData.length > 2000) {
+		//paid/free dropdown chosen
+		garagesData.forEach((garage) => {
+			var paidObj = variableData.find(obj => {
+				return obj.areaid === garage.areaId;
+			})
+			if (paidObj === undefined || paidObj.usageid === undefined) {
+				garage.paid = "onbekend";
+			} else {
+				garage.paid = paidObj.usageid;
+			}
+		})
+	} else {
+		//capacity dropdown chosen
+		garagesData.forEach((garage) => {
+			var capacityObj = variableData.find(obj => {
+				return obj.areaid === garage.areaId
+			})
+			if (capacityObj === undefined || capacityObj.capacity === undefined) {
+				garage.capacity = "onbekend";	
+			} else {
+				garage.capacity = capacityObj.capacity;
+			}			
+		})
+	}
+
+	return garagesData;
+}
+
 function combineData(garageData, garageLocatieData, variableData) {
 	let outcomeData = [];
+	// add garage names to objects
 		garageLocatieData.forEach((garage) => {
 			var result = garageData.find(obj => {
 				return obj.areaid === garage.areaId;
@@ -147,32 +176,9 @@ function combineData(garageData, garageLocatieData, variableData) {
 			}
 			outcomeData.push(garageObj);
 		});
+
+	outcomeData = checkOption(variableData, outcomeData);
 	
-	if (variableData.length > 2000) {
-		//paid/free
-		outcomeData.forEach((garage) => {
-			var paidObj = variableData.find(obj => {
-				return obj.areaid === garage.areaId;
-			})
-			if (paidObj === undefined || paidObj.usageid === undefined) {
-				garage.paid = "onbekend";
-			} else {
-				garage.paid = paidObj.usageid;
-			}
-		})
-	} else {
-		//capacity
-		outcomeData.forEach((garage) => {
-			var capacityObj = variableData.find(obj => {
-				return obj.areaid === garage.areaId
-			})
-			if (capacityObj === undefined || capacityObj.capacity === undefined) {
-				garage.capacity = "onbekend";	
-			} else {
-				garage.capacity = capacityObj.capacity;
-			}			
-		})
-	}
 	renderPoints(outcomeData)
 }
 
