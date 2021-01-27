@@ -57,4 +57,7 @@ See the folder curranDatavizCourse in this repo for the examples.
 ![image](https://user-images.githubusercontent.com/58043913/98919964-cfea4880-24cf-11eb-9ae8-7c9c115d4934.png)
 
 ### Credits & Sources
-_Here comes shout-outs to the people who helped me and url's to resources_
+* [Curran dataviz 2018](https://curran.github.io/dataviz-course-2018/)
+* [Data source](https://opendata.rdw.nl/browse?category=Parkeren&provenance=official)
+* [GIF begin source 2](https://dribbble.com/shots/3257484-Dataviz-1) and [GIF begin source 2](https://nl.pinterest.com/pin/634866878694365512/)
+_More sources are named inside the visualizations or in the [wiki](https://github.com/Jelmerovereem/frontend-data/wiki)_
